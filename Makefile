@@ -4,11 +4,11 @@
 GCC_BIN = ../gcc-arm-none-eabi-4_9-2015q1/bin/
 PROJECT = blink
 OBJECTS = ./system_stm32f4xx.o ./startup_stm32f407xx.o ./main.o
-SYS_OBJECTS = ./mbed/TARGET_ARCH_MAX/TOOLCHAIN_GCC_ARM/cmsis_nvic.o ./TARGET_ARCH_MAX/TOOLCHAIN_GCC_ARM/core_cm4.h
-INCLUDE_PATHS = -I. -I./mbed/TARGET_ARCH_MAX -I./mbed/TARGET_ARCH_MAX/TOOLCHAIN_GCC_ARM -I./mbed/TARGET_ARCH_MAX/TARGET_STM -I./mbed/TARGET_ARCH_MAX/TARGET_STM/TARGET_STM32F4 -I./mbed/TARGET_ARCH_MAX/TARGET_STM/TARGET_STM32F4/TARGET_ARCH_MAX 
-LIBRARY_PATHS = -L./mbed/TARGET_ARCH_MAX/TOOLCHAIN_GCC_ARM 
+SYS_OBJECTS = 
+INCLUDE_PATHS = -I. -I./includes 
+LIBRARY_PATHS = 
 LIBRARIES =  
-LINKER_SCRIPT = ./mbed/TARGET_ARCH_MAX/TOOLCHAIN_GCC_ARM/STM32F407XG.ld
+LINKER_SCRIPT = ./scripts/stm32_flash.ld
 
 ############################################################################### 
 AS      = $(GCC_BIN)arm-none-eabi-as
