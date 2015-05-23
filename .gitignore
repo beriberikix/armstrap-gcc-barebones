@@ -30,3 +30,10 @@
 
 # Debug files
 *.dSYM/
+
+# Sublime
+*.sublime-workspace
+
+# PlatformIO
+.sconsign.dblite
+.pioenvs
