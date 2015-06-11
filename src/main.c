@@ -1,80 +1,31 @@
 #include "main.h"
 
-const uint16_t LEDS = GPIO_Pin_1;
-const uint16_t LED[1] = {GPIO_Pin_1};
-const long LED_COUNT = 1;
-
-TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-TIM_OCInitTypeDef  TIM_OCInitStructure;
-uint16_t CCR1_Val = 333;
-uint16_t CCR2_Val = 249;
-uint16_t CCR3_Val = 166;
-uint16_t CCR4_Val = 83;
-uint16_t PrescalerValue = 0;
+uint16_t CCR1_Val = 300;
+uint16_t CCR4_Val = 1000;
 
 void loop()
 {
-//    uint32_t counter = 0;
+    //GPIO_ToggleBits(GPIOA, GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11);
+    TIM3->CCR1 = CCR4_Val;
+    TIM3->CCR2 = CCR4_Val;
+    TIM3->CCR3 = CCR4_Val;
+    TIM3->CCR4 = CCR4_Val;
 
-/* Compute the prescaler value */
-  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 21000000) - 1;
+    delay(1000);
 
-  /* Time base configuration */
-  TIM_TimeBaseStructure.TIM_Period = 665;
-  TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
-  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM3->CCR1 = CCR1_Val;
+    TIM3->CCR2 = CCR1_Val;
+    TIM3->CCR3 = CCR1_Val;
+    TIM3->CCR4 = CCR1_Val;
 
-  TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
-
-  /* PWM1 Mode configuration: Channel1 */
-  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR1_Val;
-  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-
-  TIM_OC1Init(TIM3, &TIM_OCInitStructure);
-
-  TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
-
-  /* PWM1 Mode configuration: Channel2 */
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR1_Val;
-
-  TIM_OC2Init(TIM3, &TIM_OCInitStructure);
-
-  TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable);
-
-  /* PWM1 Mode configuration: Channel3 */
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR1_Val;
-
-  TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-
-  TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-
-  /* PWM1 Mode configuration: Channel4 */
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR1_Val;
-
-  TIM_OC4Init(TIM3, &TIM_OCInitStructure);
-
-  TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
-
-  TIM_ARRPreloadConfig(TIM3, ENABLE);
-
-  /* TIM3 enable counter */
-  TIM_Cmd(TIM3, ENABLE);
-
-
-    while (1) {
-       GPIO_ToggleBits(GPIOA, GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11);
-       delay(3000);
-    };
+    delay(2000);
 }
 
 void pwmInit(void) {
+  // config structs
   GPIO_InitTypeDef GPIO_InitStructure;
+  TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+  TIM_OCInitTypeDef  TIM_OCInitStructure;
 
   /* TIM3 clock enable */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
@@ -95,19 +46,56 @@ void pwmInit(void) {
   GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_TIM3); 
   GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_TIM3);
   GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM3); 
+
+  // prescale the TIM clock by 84 for a Timer_Freq of 1MHz
+  uint16_t PrescalerValue = (uint16_t) 84;
+
+  /* Time base configuration */
+  TIM_TimeBaseStructure.TIM_Period = 1999; //standard 20ms period for servos
+  TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+  TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+
+  /* PWM1 Mode configuration: Channel1 */
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = 0; //inital duty cycle
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+
+  TIM_OC1Init(TIM3, &TIM_OCInitStructure);
+  TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
+
+  /* PWM1 Mode configuration: Channel2 */
+  TIM_OC2Init(TIM3, &TIM_OCInitStructure);
+  TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable);
+
+  /* PWM1 Mode configuration: Channel3 */
+  TIM_OC3Init(TIM3, &TIM_OCInitStructure);
+  TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
+
+  /* PWM1 Mode configuration: Channel4 */
+  TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+  TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+
+  TIM_ARRPreloadConfig(TIM3, ENABLE);
+
+  /* TIM3 enable counter */
+  TIM_Cmd(TIM3, ENABLE);
 }
 
 void dirInit(void) {
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-    GPIO_InitTypeDef gpio;
-    GPIO_StructInit(&gpio);
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+  GPIO_InitTypeDef gpio;
+  GPIO_StructInit(&gpio);
 
-    gpio.GPIO_Mode = GPIO_Mode_OUT;
-    gpio.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
+  gpio.GPIO_Mode = GPIO_Mode_OUT;
+  gpio.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
 
-    GPIO_Init(GPIOA, &gpio);
-    GPIO_SetBits(GPIOA, GPIO_Pin_8 | GPIO_Pin_10);
-    GPIO_ResetBits(GPIOA, GPIO_Pin_9 | GPIO_Pin_11);
+  GPIO_Init(GPIOA, &gpio);
+  GPIO_SetBits(GPIOA, GPIO_Pin_8 | GPIO_Pin_10);
+  GPIO_ResetBits(GPIOA, GPIO_Pin_9 | GPIO_Pin_11);
 }
 
 void setup(void) {
@@ -117,18 +105,20 @@ void setup(void) {
 
 
 void delay(uint32_t ms) {
-    ms *= 3360;
-    while(ms--) {
-        __NOP();
-    }
+  ms *= 3360;
+  while(ms--) {
+      __NOP();
+  }
 }
 
 int main()
 {
 
-    setup();
+  setup();
 
+  while(1) {
     loop();
+  }
 
-    return 0; // never reached
+  return 0; // never reached
 }
